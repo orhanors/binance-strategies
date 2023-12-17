@@ -4,10 +4,6 @@ require('dotenv').config();
 const axios = require("axios")
 
 const BASE_URL = 'https://api.binance.com';
-// Define the trade parameters
-const symbol = 'SOLUSDT';
-const quantity = 1; // The quantity of SOL you want to buy
-const tradeTime = '2023-01-01T10:00:00Z'; // Set your desired time in UTC
 
 const queryString = (obj) => {
     let str = '';
@@ -61,14 +57,53 @@ const privateBinanceRequest = async (
     }
   }
 
-// Schedule the trade
-const currentTime = moment.utc();
-const targetTime = moment.utc(tradeTime);
+const buy = async () => {
+    const options = {
+        symbol: "ACEUSDT",
+        side: "BUY",
+        type:"MARKET",
+        quoteOrderQty: "40"
+    }
 
-if (true) {
-  setTimeout(() => {
-    privateBinanceRequest("GET", "/api/v3/account", process.env.BINANCE_API_KEY, process.env.BINANCE_API_SECRET).then(res => console.log(res))
-  }, 1000);
-} else {
-  console.log('The specified trade time has already passed.');
+    try {
+        const result = await privateBinanceRequest(
+            "POST", 
+            "/api/v3/order", 
+            process.env.BINANCE_API_KEY, 
+            process.env.BINANCE_API_SECRET,
+            options
+        )
+        return result
+    } catch (error) {
+        console.log("ERRR::", error)
+    }
+} 
+
+const ACE_TIME = 1702843740000; // FIXMEEE
+const TEST_TIME = 1702844700000;
+let alreadyBought = false;
+let buyResult;
+const main = async () => {
+    if(alreadyBought) return
+    const currentTime = moment.utc(new Date().getTime()).toDate().getTime()
+    if(currentTime > TEST_TIME){
+        buyResult = await buy()
+        if(buyResult?.code !== -1121){
+            alreadyBought = true;
+            console.log("BUY result: ", buyResult)
+            return buyResult
+        }else {
+            console.log("FAILED ERRR:", buyResult)
+        }
+    }else{
+        console.log("Currennt time::", new Date(currentTime).toString())
+    }
 }
+
+
+let interval = setInterval( async () => {
+    const finalTrade = await main()
+    if(finalTrade){
+        clearInterval(interval)
+    }
+}, 200);
