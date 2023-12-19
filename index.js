@@ -62,7 +62,7 @@ const buy = async () => {
         symbol: "ACEUSDT",
         side: "BUY",
         type:"MARKET",
-        quoteOrderQty: "40"
+        quoteOrderQty: "3010"
     }
 
     try {
@@ -79,14 +79,13 @@ const buy = async () => {
     }
 } 
 
-const ACE_TIME = 1702843740000; // FIXMEEE
-const TEST_TIME = 1702844700000;
+const ACE_TIME = 1702879199000; // CHECK MEE
 let alreadyBought = false;
 let buyResult;
 const main = async () => {
     if(alreadyBought) return
     const currentTime = moment.utc(new Date().getTime()).toDate().getTime()
-    if(currentTime > TEST_TIME){
+    if(currentTime > ACE_TIME){
         buyResult = await buy()
         if(buyResult?.code !== -1121){
             alreadyBought = true;
